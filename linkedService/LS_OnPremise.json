@@ -1,0 +1,17 @@
+{
+	"name": "LS_OnPremise",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FileServer",
+		"typeProperties": {
+			"host": "D:\\Azure\\Azure",
+			"userId": "NITORINFOTECH\\prashant.kamble",
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIyMDJiYjBlZS1hYzkyLTQyZGUtODI5ZS0yMGM3OGRiNTZmNWUiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+		},
+		"connectVia": {
+			"referenceName": "SHIR",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,144 @@
+{
+	"name": "TestEmail",
+	"properties": {
+		"activities": [
+			{
+				"name": "Copy data",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobStorageReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobStorageWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "DelimitedText1",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "Op_test",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "FailureMail",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy data",
+						"dependencyConditions": [
+							"Failed"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-01.westindia.logic.azure.com:443/workflows/789c486198144c84b26fac18ce255a96/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hyscJ5DdjfHKg_9w0djv8XUvqDe40cSobTp6navd8HI",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"value": "{\n\n\"EmailTo\": \"@{pipeline().parameters.EmailTo}\",\n\"Subject\": \"Test Failure mail: Email Notification using Logic App\",\n\"FactoryName\": \"@{pipeline().DataFactory}\",\n\"PipelineName\": \"@{pipeline().Pipeline}\",\n\"ActivityName\": \"@{pipeline().parameters.ActivityName}\",\n\"ErrorMessage\":\"@{activity('Copy data').Error.Message}\"    \n}",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "SuccessMail",
+				"type": "WebActivity",
+				"dependsOn": [
+					{
+						"activity": "Copy data",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "7.00:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"url": "https://prod-01.westindia.logic.azure.com:443/workflows/789c486198144c84b26fac18ce255a96/triggers/manual/paths/invoke?api-version=2016-10-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=hyscJ5DdjfHKg_9w0djv8XUvqDe40cSobTp6navd8HI",
+					"method": "POST",
+					"headers": {
+						"Content-Type": "application/json"
+					},
+					"body": {
+						"value": "{\n\"EmailTo\": \"@{pipeline().parameters.EmailTo}\",\n\"Subject\": \"Test Success mail: Email Notification using Logic App\",\n\"FactoryName\": \"@{pipeline().DataFactory}\",\n\"PipelineName\": \"@{pipeline().Pipeline}\",\n\"ActivityName\": \"@{pipeline().parameters.ActivityName}\",\n\"Message\": \"@{pipeline().parameters.Message}\"\n}",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"parameters": {
+			"EmailTo": {
+				"type": "string",
+				"defaultValue": "prashant.kamble@nitorinfotech.com"
+			},
+			"Message": {
+				"type": "string",
+				"defaultValue": "Data has been loaded successfully"
+			},
+			"ActivityName": {
+				"type": "string",
+				"defaultValue": "Execute Copy Data"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-07-20T16:07:29Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
+}
